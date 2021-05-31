@@ -1,0 +1,37 @@
+project_name: autocopy
+
+builds:
+  - id: autocopy
+    dir: .
+    main: ./main.go
+    binary: usedwords
+    goos:
+      - darwin
+      - linux
+      - windows
+    goarch:
+      - arm
+      - arm64
+      - amd64
+    goarm:
+      - 6
+      - 7
+
+archives:
+  - name_template: "{{ .ProjectName }}_{{ .Os }}__{{ .Arch }}"
+    builds:
+      - autocopy
+    replacements:
+      amd64: x86_64
+    format_overrides:
+      - goos: windows
+        format: zip
+
+checksum:
+  name_template: "checksums.txt"
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^test'
