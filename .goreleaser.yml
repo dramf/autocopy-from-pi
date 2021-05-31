@@ -4,7 +4,7 @@ builds:
   - id: autocopy
     dir: .
     main: ./main.go
-    binary: usedwords
+    binary: autocopy
     goos:
       - darwin
       - linux
@@ -18,7 +18,7 @@ builds:
       - 7
 
 archives:
-  - name_template: "{{ .ProjectName }}_{{ .Os }}__{{ .Arch }}"
+  - name_template: "{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}"
     builds:
       - autocopy
     replacements:
