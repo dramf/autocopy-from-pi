@@ -3,9 +3,11 @@ package main
 import (
 	"etpribor.ru/autocopy/app"
 	"flag"
+	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
+	"strings"
 	"time"
 )
 
@@ -44,13 +46,16 @@ func runner(cfg *app.Config) {
 		log.Fatalf("MountRemoteServer fatal error: %v", err)
 	}
 
+	f := strings.TrimPrefix(cfg.Folder, "/")
+	folder := fmt.Sprintf("%s/%s", cfg.LocalEndpoint , f)
+
 	for {
 		select {
 		case <-tick.C:
 			flashes := app.FlashDetector(&cfg.MountPrefix, &cfg.LocalEndpoint)
 			for _, flash := range flashes {
-				log.Printf("Start coping from %q to %q", flash, cfg.Server)
-				go app.CopyFolder(cfg.LocalEndpoint, flash)
+				log.Printf("Start coping from %q to %q", flash, cfg.UploadPath)
+				go app.CopyFolder(folder, flash)
 			}
 		case <-checkMounter.C:
 			if err := app.MountRemoteServer(cfg.UploadPath, cfg.LocalEndpoint); err != nil {
