@@ -2,7 +2,8 @@
 ## Usage
 1. Install
 ```shell
-https://github.com/dramf/autocopy-from-pi/releases/download/v0.0.1/autocopy_linux_armv7.tar.gz
+wget https://github.com/dramf/autocopy-from-pi/releases/download/v0.0.1/autocopy_linux_armv7.tar.gz
+
 tar -xf autocopy_linux_armv7.tar.gz
 ```
 2. Include the mount options for the cifs folder in the configuration file `/etc/fstab`:
