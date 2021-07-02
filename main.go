@@ -7,6 +7,7 @@ import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"strings"
 	"time"
 )
@@ -21,6 +22,7 @@ func init() {
 }
 
 func main() {
+	rand.Seed(12212112)
 	flag.Parse()
 	log.Print("Running ETP AutoCopy")
 	b, err := ioutil.ReadFile(configFile)
