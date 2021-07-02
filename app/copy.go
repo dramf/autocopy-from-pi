@@ -28,6 +28,14 @@ func getSubDirs(filename string) (string, string) {
 	return date, d[0]
 }
 
+func isFileExist(file string) bool {
+	if _, err := os.Stat(file); err == nil {
+		return true
+	} else if os.IsNotExist(err) {
+		return false
+	}
+	return false
+}
 
 func prepareCopy(fullpath, remote string)  {
 	defer func() {<- ch}()
@@ -42,8 +50,20 @@ func prepareCopy(fullpath, remote string)  {
 		return
 	}
 
-	log.Printf("start copy %q from %q to %q", filename, fullpath, remote)
-	_, err := copyFile(fullpath, remoteFolder+filename)
+	remoteFile := remoteFolder+filename
+	newfile := remoteFile
+
+	for i:=1; ; i++ {
+		if !isFileExist(newfile) {
+			break
+		}
+		log.Printf("File %q is already exist!", newfile)
+		s := strings.TrimSuffix(remoteFile, ".mp4")
+		newfile = fmt.Sprintf("%s_%d.mp4", s, i)
+	}
+
+	log.Printf("start copy %q from %q to %q", filename, fullpath, newfile)
+	_, err := copyFile(fullpath, newfile)
 	if err != nil {
 		log.Printf("Copy file %q to %q err: %v", fullpath, remoteFolder+filename, err)
 		return
