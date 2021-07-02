@@ -2,7 +2,7 @@
 ## Usage
 1. Install
 ```shell
-wget https://github.com/dramf/autocopy-from-pi/releases/download/v0.0.1/autocopy_linux_armv7.tar.gz
+wget https://github.com/dramf/autocopy-from-pi/releases/download/v0.1.1/autocopy_linux_armv7.tar.gz
 
 tar -xf autocopy_linux_armv7.tar.gz
 ```
