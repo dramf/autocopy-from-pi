@@ -20,6 +20,8 @@ func FlashDetector(pref, endpoint *string) []string {
 
 	newFlashes := []string{}
 
+	activeFlashes := make(map[string]bool)
+
 	for _, mountOn := range bytes.Split(out, []byte("\n")) {
 		flash := string(mountOn)
 		if !strings.HasPrefix(flash, *pref) {
@@ -28,6 +30,8 @@ func FlashDetector(pref, endpoint *string) []string {
 		if flash == *endpoint {
 			continue
 		}
+		activeFlashes[flash] = true
+
 		_, ok := flashes[flash]
 		if ok {
 			continue
@@ -36,5 +40,14 @@ func FlashDetector(pref, endpoint *string) []string {
 		flashes[flash] = true
 		newFlashes = append(newFlashes, flash)
 	}
+
+	for f := range flashes {
+		_, ok := activeFlashes[f]
+		if !ok {
+			log.Printf("flash %q isn't active", f)
+			delete(flashes, f)
+		}
+	}
+
 	return newFlashes
 }
