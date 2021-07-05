@@ -56,7 +56,7 @@ func runner(cfg *app.Config) {
 		case <-tick.C:
 			flashes := app.FlashDetector(&cfg.MountPrefix, &cfg.LocalEndpoint)
 			for _, flash := range flashes {
-				log.Printf("Start coping from %q to %q", flash, cfg.UploadPath)
+				log.Printf("Mounted a new flash drive %q for copy to %q", flash, cfg.UploadPath)
 				go app.CopyFolder(folder, flash)
 			}
 		case <-checkMounter.C:
