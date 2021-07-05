@@ -49,7 +49,7 @@ func runner(cfg *app.Config) {
 	}
 
 	f := strings.TrimPrefix(cfg.Folder, "/")
-	folder := fmt.Sprintf("%s/%s", cfg.LocalEndpoint , f)
+	folder := fmt.Sprintf("%s/%s", cfg.LocalEndpoint, f)
 
 	for {
 		select {

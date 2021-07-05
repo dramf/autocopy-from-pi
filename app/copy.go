@@ -13,11 +13,12 @@ import (
 )
 
 const maxFiles = 3
+
 var ch = make(chan struct{}, maxFiles)
 
 // getSubDirs returns data and code
 func getSubDirs(filename string) (string, string) {
-	d := strings.Split(filename,"_" )
+	d := strings.Split(filename, "_")
 	if len(d) < 2 {
 		return fmt.Sprintf("%d", rand.Int63n(100000000)), strconv.Itoa(rand.Intn(100000))
 	}
@@ -37,23 +38,23 @@ func isFileExist(file string) bool {
 	return false
 }
 
-func prepareCopy(fullpath, remote string)  {
-	defer func() {<- ch}()
+func prepareCopy(fullpath, remote string) {
+	defer func() { <-ch }()
 
 	_, filename := path.Split(fullpath)
 	date, code := getSubDirs(filename)
 
 	remoteFolder := fmt.Sprintf("%s/%s/%s/", remote, date, code)
 
-	if err := os.MkdirAll(remoteFolder,0777); err != nil {
+	if err := os.MkdirAll(remoteFolder, 0777); err != nil {
 		log.Printf("prepareCopy error for folder %q: %v", remoteFolder, err)
 		return
 	}
 
-	remoteFile := remoteFolder+filename
+	remoteFile := remoteFolder + filename
 	newfile := remoteFile
 
-	for i:=1; ; i++ {
+	for i := 1; ; i++ {
 		if !isFileExist(newfile) {
 			break
 		}
@@ -90,7 +91,7 @@ func CopyFolder(remote, flash string) {
 		}
 
 		ch <- struct{}{}
-		go prepareCopy(flash + "/" +name, remote)
+		go prepareCopy(flash+"/"+name, remote)
 	}
 }
 
