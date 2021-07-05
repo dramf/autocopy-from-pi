@@ -65,8 +65,9 @@ func prepareCopy(fullpath, remote string) {
 			break
 		}
 		log.Printf("File %q is already exist!", newfile)
-		s := strings.TrimSuffix(remoteFile, ".mp4")
-		newfile = fmt.Sprintf("%s_%d.mp4", s, i)
+		len := len(remoteFile)
+
+		newfile = fmt.Sprintf("%s_%d%s", remoteFile[:len-4], i, remoteFile[len-4:])
 	}
 
 	log.Printf("start copy %q from %q to %q", filename, fullpath, newfile)
