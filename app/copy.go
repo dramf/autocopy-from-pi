@@ -22,6 +22,12 @@ func getSubDirs(filename string) (string, string) {
 	if len(d) < 2 {
 		return fmt.Sprintf("%d", rand.Int63n(100000000)), strconv.Itoa(rand.Intn(100000))
 	}
+	for i := 0; i < len(d); i++ {
+		if d[i] == "" {
+			d = d[i:]
+		}
+	}
+
 	if len(d[1]) < 8 {
 		return fmt.Sprintf("%d", rand.Int63n(100000000)), d[0]
 	}
