@@ -86,7 +86,7 @@ func CopyFolder(remote, flash string) {
 			CopyFolder(remote, flash+"/"+name)
 			continue
 		}
-		if !strings.HasSuffix(name, ".mp4") {
+		if !strings.HasSuffix(strings.ToLower(name), ".mp4") {
 			continue
 		}
 
