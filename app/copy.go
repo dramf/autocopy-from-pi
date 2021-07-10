@@ -24,7 +24,7 @@ func getSubDirs(filename string) (string, string) {
 	}
 	for i := 0; i < len(d); i++ {
 		if d[i] == "" {
-			d = d[i:]
+			d = append(d[:i], d[i+1:]...)
 		}
 	}
 
