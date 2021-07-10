@@ -71,7 +71,11 @@ func prepareCopy(fullpath, remote string) {
 		log.Printf("Copy file %q to %q err: %v", fullpath, remoteFolder+filename, err)
 		return
 	}
-	log.Printf("File %q was copied succesfully!", filename)
+	if err := os.Remove(fullpath); err != nil {
+		log.Printf("Removing file %q err: %v", fullpath, err)
+		return
+	}
+	log.Printf("File %q was copied and removed succesfully!", filename)
 }
 
 //func CopyFolder(remote, flash string) {
