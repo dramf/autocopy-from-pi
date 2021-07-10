@@ -59,7 +59,7 @@ func runner(cfg *app.Config) {
 			flashes := app.FlashDetector(&cfg.MountPrefix, &cfg.LocalEndpoint)
 			for _, flash := range flashes {
 				log.Printf("Mounted a new flash drive %q for copy to %q", flash, cfg.UploadPath)
-				go app.CopyFolder(folder, flash)
+				go app.CopyFolder(folder, flash, true)
 			}
 		case <-checkMounter.C:
 			if err := app.MountRemoteServer(cfg.UploadPath, cfg.LocalEndpoint); err != nil {

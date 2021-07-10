@@ -79,7 +79,7 @@ func prepareCopy(fullpath, remote string) {
 }
 
 //func CopyFolder(remote, flash string) {
-func CopyFolder(remote, flash string) {
+func CopyFolder(remote, flash string, isBaseLevel bool) {
 	files, err := ioutil.ReadDir(flash)
 	if err != nil {
 		log.Printf("readDir error: %v", err)
@@ -89,13 +89,22 @@ func CopyFolder(remote, flash string) {
 	for _, file := range files {
 		name := file.Name()
 		if file.IsDir() {
-			CopyFolder(remote, flash+"/"+name)
+			CopyFolder(remote, flash+"/"+name, false)
 			continue
 		}
 		if !strings.HasSuffix(strings.ToLower(name), ".mp4") {
 			continue
 		}
 		prepareCopy(flash+"/"+name, remote)
+	}
+	if isBaseLevel {
+		fileUmount, err := os.Create(flash + "/umount")
+		if err != nil {
+			log.Printf("Creating 'umount'-file error: %v", err)
+			return
+		}
+		fileUmount.Close()
+		log.Print("'umount' was created successfully")
 	}
 }
 
