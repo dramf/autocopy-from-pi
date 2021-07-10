@@ -48,7 +48,7 @@ func prepareCopy(fullpath, remote string) {
 
 	remoteFolder := fmt.Sprintf("%s/%s/%s/", remote, date, code)
 
-	if err := os.MkdirAll(remoteFolder, 0777); err != nil {
+	if err := os.MkdirAll(remoteFolder, 0666); err != nil {
 		log.Printf("prepareCopy error for folder %q: %v", remoteFolder, err)
 		return
 	}
@@ -78,8 +78,8 @@ func prepareCopy(fullpath, remote string) {
 	log.Printf("File %q was copied and removed succesfully!", filename)
 }
 
-//func CopyFolder(remote, flash string) {
-func CopyFolder(remote, flash string, isBaseLevel bool) {
+//func CopyingMoviesFromFlash(remote, flash string) {
+func CopyingMoviesFromFlash(remote, flash string, isBaseLevel bool) {
 	files, err := ioutil.ReadDir(flash)
 	if err != nil {
 		log.Printf("readDir error: %v", err)
@@ -88,8 +88,11 @@ func CopyFolder(remote, flash string, isBaseLevel bool) {
 
 	for _, file := range files {
 		name := file.Name()
+		if name == "logs" {
+			continue
+		}
 		if file.IsDir() {
-			CopyFolder(remote, flash+"/"+name, false)
+			CopyingMoviesFromFlash(remote, flash+"/"+name, false)
 			continue
 		}
 		if !strings.HasSuffix(strings.ToLower(name), ".mp4") {

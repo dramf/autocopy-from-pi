@@ -21,7 +21,7 @@ func init() {
 	flag.StringVar(&configFile, "config", "settings.yml", "a path to the config yaml file")
 }
 
-const currentVersion = "v0.1.5"
+const currentVersion = "v0.1.6"
 
 func main() {
 	rand.Seed(12212112)
@@ -59,7 +59,7 @@ func runner(cfg *app.Config) {
 			flashes := app.FlashDetector(&cfg.MountPrefix, &cfg.LocalEndpoint)
 			for _, flash := range flashes {
 				log.Printf("Mounted a new flash drive %q for copy to %q", flash, cfg.UploadPath)
-				go app.CopyFolder(folder, flash, true)
+				go app.CopyingMoviesFromFlash(folder, flash, true)
 				go app.CopyingLogs(folder, flash)
 			}
 		case <-checkMounter.C:
