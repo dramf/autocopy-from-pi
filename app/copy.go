@@ -14,8 +14,6 @@ import (
 
 const maxFiles = 3
 
-var ch = make(chan struct{}, maxFiles)
-
 // getSubDirs returns data and code
 func getSubDirs(filename string) (string, string) {
 	d := strings.Split(filename, "_")
@@ -45,8 +43,6 @@ func isFileExist(file string) bool {
 }
 
 func prepareCopy(fullpath, remote string) {
-	defer func() { <-ch }()
-
 	_, filename := path.Split(fullpath)
 	date, code := getSubDirs(filename)
 
@@ -65,9 +61,8 @@ func prepareCopy(fullpath, remote string) {
 			break
 		}
 		log.Printf("File %q is already exist!", newfile)
-		len := len(remoteFile)
-
-		newfile = fmt.Sprintf("%s_%d%s", remoteFile[:len-4], i, remoteFile[len-4:])
+		filenameLength := len(remoteFile)
+		newfile = fmt.Sprintf("%s_%d%s", remoteFile[:filenameLength-4], i, remoteFile[filenameLength-4:])
 	}
 
 	log.Printf("start copy %q from %q to %q", filename, fullpath, newfile)
@@ -96,9 +91,7 @@ func CopyFolder(remote, flash string) {
 		if !strings.HasSuffix(strings.ToLower(name), ".mp4") {
 			continue
 		}
-
-		ch <- struct{}{}
-		go prepareCopy(flash+"/"+name, remote)
+		prepareCopy(flash+"/"+name, remote)
 	}
 }
 
