@@ -21,10 +21,12 @@ func init() {
 	flag.StringVar(&configFile, "config", "settings.yml", "a path to the config yaml file")
 }
 
+const currentVersion = "v0.1.5"
+
 func main() {
 	rand.Seed(12212112)
 	flag.Parse()
-	log.Print("Running ETP AutoCopy")
+	log.Printf("Running ETP AutoCopy %s", currentVersion)
 	b, err := ioutil.ReadFile(configFile)
 	if err != nil {
 		log.Fatal(err)
