@@ -71,6 +71,7 @@ func CopyingLogs(folder, flash string) {
 			log.Printf("write remote log file %q error: %v", name, err)
 		}
 		f.Close()
+		os.Remove(flash + "/logs/" + name)
 		log.Printf("log %q was copied to %q!", name, logFolder)
 	}
 }
