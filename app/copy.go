@@ -49,7 +49,7 @@ func prepareCopy(fullpath, remote string) {
 	remoteFolder := fmt.Sprintf("%s/%s/%s/", remote, date, code)
 
 	if err := os.MkdirAll(remoteFolder, 0666); err != nil {
-		log.Printf("prepareCopy error for folder %q: %v", remoteFolder, err)
+		log.Printf("[ERROR] prepareCopy for folder %q: %v", remoteFolder, err)
 		return
 	}
 
@@ -66,13 +66,12 @@ func prepareCopy(fullpath, remote string) {
 	}
 
 	log.Printf("start copy %q from %q to %q", filename, fullpath, newfile)
-	_, err := copyFile(fullpath, newfile)
-	if err != nil {
-		log.Printf("Copy file %q to %q err: %v", fullpath, remoteFolder+filename, err)
+	if _, err := copyFile(fullpath, newfile); err != nil {
+		log.Printf("[ERROR] Copy file %q to %q: %v", fullpath, remoteFolder+filename, err)
 		return
 	}
 	if err := os.Remove(fullpath); err != nil {
-		log.Printf("Removing file %q err: %v", fullpath, err)
+		log.Printf("[ERROR] Removing file %q: %v", fullpath, err)
 		return
 	}
 	log.Printf("File %q was copied and removed succesfully!", filename)
@@ -82,28 +81,35 @@ func prepareCopy(fullpath, remote string) {
 func CopyingMoviesFromFlash(remote, flash string, isBaseLevel bool) {
 	files, err := ioutil.ReadDir(flash)
 	if err != nil {
-		log.Printf("readDir error: %v", err)
+		log.Printf("[ERROR] readDir error: %v", err)
 		return
 	}
 
 	for _, file := range files {
 		name := file.Name()
+		fullname := flash+"/"+name
+
+		if !isFileExist(fullname) {
+			log.Printf("[ERROR] can't access to file %q", fullname)
+			return
+		}
+
 		if name == "logs" {
 			continue
 		}
 		if file.IsDir() {
-			CopyingMoviesFromFlash(remote, flash+"/"+name, false)
+			CopyingMoviesFromFlash(remote, fullname, false)
 			continue
 		}
 		if !strings.HasSuffix(strings.ToLower(name), ".mp4") {
 			continue
 		}
-		prepareCopy(flash+"/"+name, remote)
+		prepareCopy(fullname, remote)
 	}
 	if isBaseLevel {
 		fileUmount, err := os.Create(flash + "/umount")
 		if err != nil {
-			log.Printf("Creating 'umount'-file error: %v", err)
+			log.Printf("[ERROR] Creating 'umount' file: %v", err)
 			return
 		}
 		fileUmount.Close()
