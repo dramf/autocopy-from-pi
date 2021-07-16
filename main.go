@@ -21,7 +21,7 @@ func init() {
 	flag.StringVar(&configFile, "config", "settings.yml", "a path to the config yaml file")
 }
 
-const currentVersion = "v0.1.6"
+const currentVersion = "v0.1.7"
 
 func main() {
 	rand.Seed(12212112)
