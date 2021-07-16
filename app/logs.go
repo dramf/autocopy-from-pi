@@ -55,7 +55,8 @@ func CopyingLogs(folder, flash string) {
 			continue
 		}
 
-		source, err := ioutil.ReadFile(flash + "/logs/" + name)
+		logFile := flash + "/logs/" + name
+		source, err := ioutil.ReadFile(logFile)
 		if err != nil {
 			log.Printf("Reading log file %q error: %v", name, err)
 			continue
@@ -71,7 +72,10 @@ func CopyingLogs(folder, flash string) {
 			log.Printf("write remote log file %q error: %v", name, err)
 		}
 		f.Close()
-		os.Remove(flash + "/logs/" + name)
-		log.Printf("log %q was copied to %q!", name, logFolder)
+		if err := os.Remove(logFile); err != nil {
+			log.Printf("remove log file %q error: %v", logFile, err)
+			continue
+		}
+		log.Printf("log %q was copied to %q and removed", name, logFolder)
 	}
 }
