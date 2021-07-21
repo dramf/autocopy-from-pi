@@ -87,7 +87,7 @@ func CopyingMoviesFromFlash(remote, flash string, isBaseLevel bool) {
 
 	for _, file := range files {
 		name := file.Name()
-		fullname := flash+"/"+name
+		fullname := flash + "/" + name
 
 		if !isFileExist(fullname) {
 			log.Printf("[ERROR] can't access to file %q", fullname)
