@@ -42,14 +42,14 @@ func isFileExist(file string) bool {
 	return false
 }
 
-func prepareCopy(fullpath, remote string) {
+func prepareCopy(fullpath, remote string, logger *log.Logger) {
 	_, filename := path.Split(fullpath)
 	date, code := getSubDirs(filename)
 
 	remoteFolder := fmt.Sprintf("%s/%s/%s/", remote, date, code)
 
 	if err := os.MkdirAll(remoteFolder, 0666); err != nil {
-		log.Printf("[ERROR] prepareCopy for folder %q: %v", remoteFolder, err)
+		logger.Printf("[ERROR] prepareCopy for folder %q: %v", remoteFolder, err)
 		return
 	}
 
@@ -60,28 +60,28 @@ func prepareCopy(fullpath, remote string) {
 		if !isFileExist(newfile) {
 			break
 		}
-		log.Printf("File %q is already exist!", newfile)
+		logger.Printf("File %q is already exist!", newfile)
 		filenameLength := len(remoteFile)
 		newfile = fmt.Sprintf("%s_%d%s", remoteFile[:filenameLength-4], i, remoteFile[filenameLength-4:])
 	}
 
-	log.Printf("start copy %q from %q to %q", filename, fullpath, newfile)
+	logger.Printf("start copy %q from %q to %q", filename, fullpath, newfile)
 	if _, err := copyFile(fullpath, newfile); err != nil {
-		log.Printf("[ERROR] Copy file %q to %q: %v", fullpath, remoteFolder+filename, err)
+		logger.Printf("[ERROR] Copy file %q to %q: %v", fullpath, remoteFolder+filename, err)
 		return
 	}
 	if err := os.Remove(fullpath); err != nil {
-		log.Printf("[ERROR] Removing file %q: %v", fullpath, err)
+		logger.Printf("[ERROR] Removing file %q: %v", fullpath, err)
 		return
 	}
-	log.Printf("File %q was copied and removed succesfully!", filename)
+	logger.Printf("File %q was copied and removed succesfully!", filename)
 }
 
 //func CopyingMoviesFromFlash(remote, flash string) {
-func CopyingMoviesFromFlash(remote, flash string, isBaseLevel bool) {
+func CopyingMoviesFromFlash(remote, flash string, isBaseLevel bool, logger *log.Logger) {
 	files, err := ioutil.ReadDir(flash)
 	if err != nil {
-		log.Printf("[ERROR] readDir error: %v", err)
+		logger.Printf("[ERROR] readDir error: %v", err)
 		return
 	}
 
@@ -90,7 +90,7 @@ func CopyingMoviesFromFlash(remote, flash string, isBaseLevel bool) {
 		fullname := flash + "/" + name
 
 		if !isFileExist(fullname) {
-			log.Printf("[ERROR] can't access to file %q", fullname)
+			logger.Printf("[ERROR] can't access to file %q", fullname)
 			return
 		}
 
@@ -98,13 +98,13 @@ func CopyingMoviesFromFlash(remote, flash string, isBaseLevel bool) {
 			continue
 		}
 		if file.IsDir() {
-			CopyingMoviesFromFlash(remote, fullname, false)
+			CopyingMoviesFromFlash(remote, fullname, false, logger)
 			continue
 		}
 		if !strings.HasSuffix(strings.ToLower(name), ".mp4") {
 			continue
 		}
-		prepareCopy(fullname, remote)
+		prepareCopy(fullname, remote, logger)
 	}
 	if isBaseLevel {
 		fileUmount, err := os.Create(flash + "/umount")
@@ -113,7 +113,7 @@ func CopyingMoviesFromFlash(remote, flash string, isBaseLevel bool) {
 			return
 		}
 		fileUmount.Close()
-		log.Print("'umount' was created successfully")
+		log.Printf("'%s/umount' was created successfully", flash)
 	}
 }
 

@@ -25,15 +25,21 @@ func init() {
 
 const currentVersion = "v0.1.8"
 
-func setMainLogFile(dir string) error {
-	fn := fmt.Sprintf("%s/sys_%s.txt", dir, app.GetCurrentDateName())
-	fMainLogs, err := os.OpenFile(fn, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0x666)
-	if err != nil {
-		return err
+func getLoggerForLamp(folder, lampNumber string) (*log.Logger, error) {
+	now := app.GetCurrentDateName()
+	dir := fmt.Sprintf("%s/%s/%s/logs", folder, now, lampNumber)
+	if err := os.MkdirAll(dir, 0x666); err != nil {
+		return nil, err
 	}
-	log.SetOutput(io.MultiWriter(os.Stdout, fMainLogs))
-	log.Printf("File for main logs: %q", fn)
-	return nil
+	fn := fmt.Sprintf("%s/lamp_%s.txt", dir, now)
+	f, err := os.OpenFile(fn, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		return nil, err
+	}
+	w := io.MultiWriter(os.Stdout, f)
+	logger := log.New(w, "["+lampNumber+" log] ", log.LstdFlags)
+	log.Printf("The specific log file will be used for %s lamp: %q", lampNumber, fn)
+	return logger, nil
 }
 
 func main() {
@@ -47,8 +53,6 @@ func main() {
 	if err := yaml.Unmarshal(b, cfg); err != nil {
 		log.Fatal(err)
 	}
-	cfg.LogConfig()
-
 	runner(cfg)
 }
 
@@ -58,11 +62,17 @@ func runner(cfg *app.Config) {
 	}
 	folder := fmt.Sprintf("%s/%s", cfg.LocalEndpoint, strings.TrimPrefix(cfg.Folder, "/"))
 
-	if err := setMainLogFile(folder); err != nil {
+	fn := fmt.Sprintf("%s/sys_%s.txt", folder, app.GetCurrentDateName())
+	fMainLogs, err := os.OpenFile(fn, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
 		log.Fatalf("setMainLogFile error: %v", err)
 	}
+	defer fMainLogs.Close()
+	log.SetOutput(io.MultiWriter(os.Stdout, fMainLogs))
 
 	log.Printf("Running ETP AutoCopy %s", currentVersion)
+	log.Printf("File for main logs: %q", fn)
+	cfg.LogConfig()
 
 	tick := time.NewTicker(time.Millisecond * time.Duration(cfg.PollInterval))
 	const checkMoreOften = 100
@@ -75,8 +85,14 @@ func runner(cfg *app.Config) {
 			flashes := app.FlashDetector(&cfg.MountPrefix, &cfg.LocalEndpoint)
 			for _, flash := range flashes {
 				log.Printf("Mounted a new flash drive %q for copy to %q", flash, cfg.UploadPath)
-				go app.CopyingMoviesFromFlash(folder, flash, true)
-				go app.CopyingLogs(folder, flash)
+				lampNumber := app.GetLampNumber(flash)
+				logger, err := getLoggerForLamp(folder, lampNumber)
+				if err != nil {
+					log.Printf("[ERROR] Can't create a specific log for %q lamp (flash: %q): %v. The default logger will be used.", lampNumber, flash, err)
+					logger = log.Default()
+				}
+				go app.CopyingMoviesFromFlash(folder, flash, true, logger)
+				go app.CopyingLogs(folder, flash, lampNumber, logger)
 			}
 		case <-checkMounter.C:
 			if err := app.MountRemoteServer(cfg.UploadPath, cfg.LocalEndpoint); err != nil {
