@@ -23,7 +23,7 @@ func init() {
 	flag.StringVar(&configFile, "config", "settings.yml", "a path to the config yaml file")
 }
 
-const currentVersion = "v0.1.8"
+const currentVersion = "v0.1.9"
 
 func getLoggerForLamp(folder, lampNumber string) (*log.Logger, error) {
 	now := app.GetCurrentDateName()
