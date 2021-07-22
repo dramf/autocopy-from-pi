@@ -60,7 +60,10 @@ func runner(cfg *app.Config) {
 	if err := app.MountRemoteServer(cfg.UploadPath, cfg.LocalEndpoint); err != nil {
 		log.Fatalf("MountRemoteServer fatal error: %v", err)
 	}
-	folder := fmt.Sprintf("%s/%s", cfg.LocalEndpoint, strings.TrimPrefix(cfg.Folder, "/"))
+	folder := fmt.Sprintf("%s/%s/+logs", cfg.LocalEndpoint, strings.TrimPrefix(cfg.Folder, "/"))
+	if err := os.MkdirAll(folder, 0666); err != nil {
+		log.Fatalf("creating log folder (%q) error: %v", folder, err)
+	}
 
 	fn := fmt.Sprintf("%s/sys_%s.txt", folder, app.GetCurrentDateName())
 	fMainLogs, err := os.OpenFile(fn, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
