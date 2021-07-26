@@ -25,21 +25,16 @@ func init() {
 
 const currentVersion = "v0.1.10"
 
-func getLoggerForLamp(folder, lampNumber string) (*log.Logger, error) {
+func getLoggerForLamp(folder, lampNumber string) *log.Logger {
 	now := app.GetCurrentDateName()
 	dir := fmt.Sprintf("%s/%s/%s/logs", folder, now, lampNumber)
-	if err := os.MkdirAll(dir, 0x666); err != nil {
-		return nil, err
-	}
-	fn := fmt.Sprintf("%s/lamp_%s.txt", dir, now)
-	f, err := os.OpenFile(fn, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		return nil, err
-	}
-	w := io.MultiWriter(os.Stdout, f)
-	logger := log.New(w, "["+lampNumber+" log] ", log.LstdFlags)
-	log.Printf("The specific log file will be used for %s lamp: %q", lampNumber, fn)
-	return logger, nil
+	logger := app.GetETPLogger(dir, "/lamp_%s.txt")
+	w := io.MultiWriter(os.Stdout, logger)
+	return log.New(w, "["+lampNumber+" log] ", log.LstdFlags)
+}
+
+func getMainWriter(mainFolder string) io.Writer {
+	return io.MultiWriter(os.Stdout, app.GetETPLogger(mainFolder+"/+logs", "/sys_%s.txt"))
 }
 
 func main() {
@@ -60,21 +55,10 @@ func runner(cfg *app.Config) {
 	if err := app.MountRemoteServer(cfg.UploadPath, cfg.LocalEndpoint); err != nil {
 		log.Fatalf("MountRemoteServer fatal error: %v", err)
 	}
-	folder := fmt.Sprintf("%s/%s/+logs", cfg.LocalEndpoint, strings.TrimPrefix(cfg.Folder, "/"))
-	if err := os.MkdirAll(folder, 0666); err != nil {
-		log.Fatalf("creating log folder (%q) error: %v", folder, err)
-	}
-
-	fn := fmt.Sprintf("%s/sys_%s.txt", folder, app.GetCurrentDateName())
-	fMainLogs, err := os.OpenFile(fn, os.O_WRONLY|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		log.Fatalf("setMainLogFile error: %v", err)
-	}
-	defer fMainLogs.Close()
-	log.SetOutput(io.MultiWriter(os.Stdout, fMainLogs))
+	folder := fmt.Sprintf("%s/%s", cfg.LocalEndpoint, strings.TrimPrefix(cfg.Folder, "/"))
+	log.SetOutput(getMainWriter(folder))
 
 	log.Printf("Running ETP AutoCopy %s", currentVersion)
-	log.Printf("File for main logs: %q", fn)
 	cfg.LogConfig()
 
 	tick := time.NewTicker(time.Millisecond * time.Duration(cfg.PollInterval))
@@ -89,11 +73,7 @@ func runner(cfg *app.Config) {
 			for _, flash := range flashes {
 				log.Printf("Mounted a new flash drive %q for copy to %q", flash, cfg.UploadPath)
 				lampNumber := app.GetLampNumber(flash)
-				logger, err := getLoggerForLamp(folder, lampNumber)
-				if err != nil {
-					log.Printf("[ERROR] Can't create a specific log for %q lamp (flash: %q): %v. The default logger will be used.", lampNumber, flash, err)
-					logger = log.Default()
-				}
+				logger := getLoggerForLamp(folder, lampNumber)
 				go app.CopyingMoviesFromFlash(folder, flash, true, logger)
 				go app.CopyingLogs(folder, flash, lampNumber, logger)
 			}
