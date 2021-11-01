@@ -53,6 +53,7 @@ func prepareCopy(fullpath, remote string, logger *log.Logger) {
 		return
 	}
 
+	hostname, _ := os.Hostname()
 	remoteFile := remoteFolder + filename
 	newfile := remoteFile
 
@@ -64,8 +65,7 @@ func prepareCopy(fullpath, remote string, logger *log.Logger) {
 		filenameLength := len(remoteFile)
 		newfile = fmt.Sprintf("%s_%d%s", remoteFile[:filenameLength-4], i, remoteFile[filenameLength-4:])
 	}
-
-	logger.Printf("start copy %q from %q to %q", filename, fullpath, newfile)
+	logger.Printf("start copy %q from %q to %q", filename, hostname+"//"+fullpath, newfile)
 	if _, err := copyFile(fullpath, newfile); err != nil {
 		logger.Printf("[ERROR] Copy file %q to %q: %v", fullpath, remoteFolder+filename, err)
 		return

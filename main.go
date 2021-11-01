@@ -34,7 +34,8 @@ func getLoggerForLamp(folder, lampNumber string) *log.Logger {
 }
 
 func getMainWriter(mainFolder string) io.Writer {
-	return io.MultiWriter(os.Stdout, app.GetETPLogger(mainFolder+"/+logs", "/sys_%s.txt"))
+	hostname, _ := os.Hostname()
+	return io.MultiWriter(os.Stdout, app.GetETPLogger(mainFolder+"/+logs/"+hostname, "/sys_%s.txt"))
 }
 
 func main() {
