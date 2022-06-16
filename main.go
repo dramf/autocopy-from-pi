@@ -46,7 +46,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("parsing build time error: %v", err)
 	}
-	log.Printf("Running ETP AutoCopy %s %s", version, time.Unix(bti, 0).Format("2006.01.02 15:04:05"))
+	log.Printf("Running ETP AutoCopy v%s build: %s", version, time.Unix(bti, 0).Format("2006.01.02 15:04:05"))
 
 	rand.Seed(12212112)
 	flag.Parse()
