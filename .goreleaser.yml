@@ -5,6 +5,9 @@ builds:
     dir: .
     main: ./main.go
     binary: autocopy
+    ldflags:
+      - main.version={{.Version}}
+      - main.buildtime={{.Timestamp}}
     goos:
       - darwin
       - linux

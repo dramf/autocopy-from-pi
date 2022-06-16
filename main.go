@@ -16,8 +16,8 @@ import (
 )
 
 var (
-	Version   = "dev"
-	Timestamp = time.Now()
+	version   = "dev"
+	buildtime = time.Now()
 
 	configFile = ""
 	ready      = make(chan struct{})
@@ -41,7 +41,7 @@ func getMainWriter(mainFolder string) io.Writer {
 }
 
 func main() {
-	log.Printf("Running ETP AutoCopy %s", Timestamp.Format("2006.01.02 15:04:05"))
+	log.Printf("Running ETP AutoCopy %s %s", version, buildtime.Format("2006.01.02 15:04:05"))
 
 	rand.Seed(12212112)
 	flag.Parse()
