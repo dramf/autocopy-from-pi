@@ -1,10 +1,8 @@
 package main
 
 import (
-	"etpribor.ru/autocopy/app"
 	"flag"
 	"fmt"
-	"gopkg.in/yaml.v2"
 	"io"
 	"io/ioutil"
 	"log"
@@ -12,9 +10,15 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"etpribor.ru/autocopy/app"
+	"gopkg.in/yaml.v2"
 )
 
 var (
+	Version   = "dev"
+	Timestamp = time.Now()
+
 	configFile = ""
 	ready      = make(chan struct{})
 )
@@ -22,8 +26,6 @@ var (
 func init() {
 	flag.StringVar(&configFile, "config", "settings.yml", "a path to the config yaml file")
 }
-
-const currentVersion = "v0.1.10"
 
 func getLoggerForLamp(folder, lampNumber string) *log.Logger {
 	now := app.GetCurrentDateName()
@@ -39,6 +41,8 @@ func getMainWriter(mainFolder string) io.Writer {
 }
 
 func main() {
+	log.Printf("Running ETP AutoCopy %s", Timestamp.Format("2006.01.02 15:04:05"))
+
 	rand.Seed(12212112)
 	flag.Parse()
 	b, err := ioutil.ReadFile(configFile)
@@ -59,7 +63,6 @@ func runner(cfg *app.Config) {
 	folder := fmt.Sprintf("%s/%s", cfg.LocalEndpoint, strings.TrimPrefix(cfg.Folder, "/"))
 	log.SetOutput(getMainWriter(folder))
 
-	log.Printf("Running ETP AutoCopy %s", currentVersion)
 	cfg.LogConfig()
 
 	tick := time.NewTicker(time.Millisecond * time.Duration(cfg.PollInterval))
