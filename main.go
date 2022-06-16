@@ -18,7 +18,7 @@ import (
 
 var (
 	version   = "dev"
-	buildtime = fmt.Sprintf("%d", time.Now().Unix())
+	buildtime = "1655367163"
 
 	configFile = ""
 	ready      = make(chan struct{})
