@@ -6,8 +6,7 @@ builds:
     main: ./main.go
     binary: autocopy
     ldflags:
-      - main.version={{.Version}}
-      - main.buildtime={{.Timestamp}}
+      - -s -w -X "main.version={{.Version}}" -X "main.buildtime={{.Timestamp}}"
     goos:
       - darwin
       - linux
