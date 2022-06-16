@@ -8,6 +8,7 @@ import (
 	"log"
 	"math/rand"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -17,7 +18,7 @@ import (
 
 var (
 	version   = "dev"
-	buildtime = time.Now()
+	buildtime = fmt.Sprintf("%d", time.Now().Unix())
 
 	configFile = ""
 	ready      = make(chan struct{})
@@ -41,7 +42,11 @@ func getMainWriter(mainFolder string) io.Writer {
 }
 
 func main() {
-	log.Printf("Running ETP AutoCopy %s %s", version, buildtime.Format("2006.01.02 15:04:05"))
+	bti, err := strconv.ParseInt(buildtime, 10, 64)
+	if err != nil {
+		log.Fatalf("parsing build time error: %v", err)
+	}
+	log.Printf("Running ETP AutoCopy %s %s", version, time.Unix(bti, 0).Format("2006.01.02 15:04:05"))
 
 	rand.Seed(12212112)
 	flag.Parse()
