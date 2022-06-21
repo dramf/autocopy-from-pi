@@ -64,13 +64,13 @@ func loggingVersion() {
 }
 
 func runner(cfg *app.Config) {
+	folder := fmt.Sprintf("%s/%s", cfg.LocalEndpoint, strings.TrimPrefix(cfg.Folder, "/"))
+	log.SetOutput(getMainWriter(folder))
+	loggingVersion()
+
 	if err := app.MountRemoteServer(cfg.UploadPath, cfg.LocalEndpoint); err != nil {
 		log.Fatalf("MountRemoteServer fatal error: %v", err)
 	}
-	folder := fmt.Sprintf("%s/%s", cfg.LocalEndpoint, strings.TrimPrefix(cfg.Folder, "/"))
-	log.SetOutput(getMainWriter(folder))
-
-	loggingVersion()
 	cfg.LogConfig()
 
 	tick := time.NewTicker(time.Millisecond * time.Duration(cfg.PollInterval))
