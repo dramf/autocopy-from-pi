@@ -42,12 +42,6 @@ func getMainWriter(mainFolder string) io.Writer {
 }
 
 func main() {
-	bti, err := strconv.ParseInt(buildtime, 10, 64)
-	if err != nil {
-		log.Fatalf("parsing build time error: %v", err)
-	}
-	log.Printf("Running ETP AutoCopy v%s build: %s", version, time.Unix(bti, 0).Format("2006.01.02 15:04:05"))
-
 	rand.Seed(12212112)
 	flag.Parse()
 	b, err := ioutil.ReadFile(configFile)
@@ -61,6 +55,14 @@ func main() {
 	runner(cfg)
 }
 
+func loggingVersion() {
+	bti, err := strconv.ParseInt(buildtime, 10, 64)
+	if err != nil {
+		log.Fatalf("parsing build time error: %v", err)
+	}
+	log.Printf("Running ETP AutoCopy v%s build: %s", version, time.Unix(bti, 0).Format("2006.01.02 15:04:05"))
+}
+
 func runner(cfg *app.Config) {
 	if err := app.MountRemoteServer(cfg.UploadPath, cfg.LocalEndpoint); err != nil {
 		log.Fatalf("MountRemoteServer fatal error: %v", err)
@@ -68,6 +70,7 @@ func runner(cfg *app.Config) {
 	folder := fmt.Sprintf("%s/%s", cfg.LocalEndpoint, strings.TrimPrefix(cfg.Folder, "/"))
 	log.SetOutput(getMainWriter(folder))
 
+	loggingVersion()
 	cfg.LogConfig()
 
 	tick := time.NewTicker(time.Millisecond * time.Duration(cfg.PollInterval))
