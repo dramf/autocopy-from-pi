@@ -24,3 +24,8 @@ To be able to mount that folder as a normal user (without `sudo`), include the m
 username=user
 password=pwd
 ```
+
+## Build for Raspberry Pi
+```sh
+$ GOOS=linux GOARCH=arm GOARM=7 go build -o ac
+```
